@@ -65,17 +65,27 @@ class GitHubAPIClient:
                 "Authorization": f"token {self.token}"
             })
 
-    def _request(self, endpoint, params=None):
+    def _request(self, endpoint, params=None, retries=2):
         """
         Internal request helper to centralize error handling and timeout requirements.
+        Supports automatic retries for transient network/timeout errors.
         """
         url = f"{self.BASE_URL}/{endpoint.lstrip('/')}"
-        try:
-            response = self.session.get(url, params=params, timeout=self.TIMEOUT)
-        except requests.Timeout as e:
-            raise NetworkTimeoutError("The request to GitHub API timed out (5s limit). Please check your internet connection.") from e
-        except requests.RequestException as e:
-            raise GitHubAPIError(f"A network error occurred while communicating with GitHub: {e}") from e
+        
+        for attempt in range(retries + 1):
+            try:
+                response = self.session.get(url, params=params, timeout=self.TIMEOUT)
+                break  # Success, exit retry loop
+            except requests.Timeout as e:
+                if attempt < retries:
+                    time.sleep(0.5)  # Small backoff before retrying
+                    continue
+                raise NetworkTimeoutError("The request to GitHub API timed out (5s limit). Please check your internet connection.") from e
+            except requests.RequestException as e:
+                if attempt < retries:
+                    time.sleep(0.5)
+                    continue
+                raise GitHubAPIError(f"A network error occurred while communicating with GitHub: {e}") from e
 
         # Handle rate limiting specifically
         limit = response.headers.get("X-RateLimit-Limit")
