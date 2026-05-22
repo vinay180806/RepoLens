@@ -3,7 +3,16 @@ import os
 import re
 import json
 import argparse
-from datetime import datetime
+from datetime import datetime, timezone
+
+# Reconfigure standard streams to UTF-8 on Windows to support emojis and unicode formatting
+if sys.platform.startswith("win"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 
 from github_api import (
     GitHubAPIClient, 
@@ -118,7 +127,7 @@ def main():
             if export_path:
                 export_data = {
                     "mode": "comparison",
-                    "timestamp": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC"),
+                    "timestamp": datetime.now(timezone.utc).replace(tzinfo=None).strftime("%Y-%m-%d %H:%M:%S UTC"),
                     "repo1": metrics1.to_dict(),
                     "repo2": metrics2.to_dict()
                 }
@@ -171,7 +180,7 @@ def main():
             if export_path:
                 export_data = {
                     "mode": "single",
-                    "timestamp": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC"),
+                    "timestamp": datetime.now(timezone.utc).replace(tzinfo=None).strftime("%Y-%m-%d %H:%M:%S UTC"),
                     "data": metrics.to_dict()
                 }
                 with open(export_path, "w", encoding="utf-8") as f:

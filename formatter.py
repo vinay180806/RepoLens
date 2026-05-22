@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 from rich.console import Console
 from rich.panel import Panel
@@ -54,7 +54,7 @@ class RepoMetrics:
     def _calculate_days_since_last_commit(self):
         if not self.last_commit_date:
             return 9999
-        delta = datetime.utcnow() - self.last_commit_date
+        delta = datetime.now(timezone.utc).replace(tzinfo=None) - self.last_commit_date
         return max(0, delta.days)
 
     def _calculate_health_status(self):
@@ -91,7 +91,7 @@ class RepoMetrics:
         # We look at the date of the 30th commit (or last available)
         if self.commits:
             recent_commits_count = 0
-            now = datetime.utcnow()
+            now = datetime.now(timezone.utc).replace(tzinfo=None)
             for c in self.commits:
                 date_str = c.get("commit", {}).get("committer", {}).get("date")
                 if date_str:
