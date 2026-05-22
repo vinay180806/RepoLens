@@ -25,6 +25,28 @@ Ensure you have Python 3.8+ installed.
 pip install -r requirements.txt
 ```
 
+### Optional: GitHub API Token
+
+The CLI works without a token for normal usage, but GitHub imposes strict unauthenticated rate limits. To avoid rate limiting, set a GitHub Personal Access Token using the `GITHUB_TOKEN` environment variable.
+
+1. Visit https://github.com/settings/tokens
+2. Generate a new token. For public repository data, the default permissions are sufficient.
+3. Do not commit the token to source control.
+
+On Windows PowerShell:
+
+```powershell
+setx GITHUB_TOKEN "your_token_here"
+```
+
+On macOS / Linux:
+
+```bash
+export GITHUB_TOKEN="your_token_here"
+```
+
+Reload your terminal after setting the variable.
+
 ## Run
 
 To analyze a single repository:
