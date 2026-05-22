@@ -36,8 +36,8 @@ def validate_repo_input(repo_str: str) -> bool:
     """
     if not repo_str:
         return False
-    # Strip whitespace to check if the input contains spaces
-    if " " in repo_str.strip():
+    repo_str = repo_str.strip()
+    if " " in repo_str:
         return False
     return bool(REPO_PATTERN.match(repo_str))
 
@@ -131,9 +131,13 @@ def main():
                     "repo1": metrics1.to_dict(),
                     "repo2": metrics2.to_dict()
                 }
-                with open(export_path, "w", encoding="utf-8") as f:
-                    json.dump(export_data, f, indent=4)
-                console.print(f"\n[bold green]✓[/bold green] Comparison successfully exported to [cyan]{export_path}[/cyan]\n")
+                try:
+                    with open(export_path, "w", encoding="utf-8") as f:
+                        json.dump(export_data, f, indent=4)
+                    console.print(f"\n[bold green]✓[/bold green] Comparison successfully exported to [cyan]{export_path}[/cyan]\n")
+                except OSError as e:
+                    TerminalFormatter.print_error(str(e), "File Export Error")
+                    sys.exit(1)
 
         except RepositoryNotFoundError as e:
             TerminalFormatter.print_error(str(e), "Repository Not Found")
@@ -183,9 +187,13 @@ def main():
                     "timestamp": datetime.now(timezone.utc).replace(tzinfo=None).strftime("%Y-%m-%d %H:%M:%S UTC"),
                     "data": metrics.to_dict()
                 }
-                with open(export_path, "w", encoding="utf-8") as f:
-                    json.dump(export_data, f, indent=4)
-                console.print(f"[bold green]✓[/bold green] Analysis successfully exported to [cyan]{export_path}[/cyan]\n")
+                try:
+                    with open(export_path, "w", encoding="utf-8") as f:
+                        json.dump(export_data, f, indent=4)
+                    console.print(f"[bold green]✓[/bold green] Analysis successfully exported to [cyan]{export_path}[/cyan]\n")
+                except OSError as e:
+                    TerminalFormatter.print_error(str(e), "File Export Error")
+                    sys.exit(1)
                 
         except RepositoryNotFoundError as e:
             TerminalFormatter.print_error(str(e), "Repository Not Found")

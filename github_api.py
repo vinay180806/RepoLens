@@ -1,6 +1,6 @@
 import os
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 import requests
 
 class GitHubAPIError(Exception):
@@ -92,9 +92,14 @@ class GitHubAPIClient:
         remaining = response.headers.get("X-RateLimit-Remaining")
         reset_time = response.headers.get("X-RateLimit-Reset")
 
+        try:
+            response_json = response.json()
+        except ValueError:
+            response_json = {}
+
         if response.status_code == 403 or response.status_code == 429:
             # Check if it is a rate limit or abuse detection mechanism
-            message = response.json().get("message", "Forbidden/Rate limit exceeded")
+            message = response_json.get("message", "Forbidden/Rate limit exceeded")
             if remaining == "0" or "rate limit" in message.lower():
                 raise RateLimitExceededError(
                     f"GitHub API rate limit exceeded. {message}",
@@ -109,8 +114,7 @@ class GitHubAPIClient:
             raise RepositoryNotFoundError("The repository was not found. Please verify owner/repo spelling.")
 
         if not response.ok:
-            error_data = response.json() if response.content else {}
-            message = error_data.get("message", "Unknown API error occurred.")
+            message = response_json.get("message", "Unknown API error occurred.")
             raise APIError(message, response.status_code)
 
         return response.json()

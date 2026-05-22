@@ -1,11 +1,9 @@
 from datetime import datetime, timezone
-import json
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 from rich.columns import Columns
-from rich.progress import BarColumn, Progress
 
 # Initialize global rich Console
 console = Console()
@@ -15,9 +13,9 @@ class RepoMetrics:
 
     def __init__(self, repo_data, languages, contributors, commits):
         self.repo_data = repo_data
-        self.languages = languages
-        self.contributors = contributors
-        self.commits = commits
+        self.languages = languages or {}
+        self.contributors = contributors or []
+        self.commits = commits or []
         self.owner = repo_data.get("owner", {}).get("login", "Unknown")
         self.name = repo_data.get("name", "Unknown")
         self.full_name = repo_data.get("full_name", f"{self.owner}/{self.name}")
