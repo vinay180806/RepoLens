@@ -333,7 +333,7 @@ class TerminalFormatter:
             )
             
         console.print(table)
-        console.print()
+        console.print("  [dim]💡 Tip: Export this analysis to JSON using: [bold steel_blue1]python main.py owner/repo --export <file>.json[/bold steel_blue1][/dim]\n")
 
     @staticmethod
     def print_comparison(metrics1: RepoMetrics, metrics2: RepoMetrics):
